@@ -1,65 +1,53 @@
-// server.js
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const axios = require("axios");
-require("dotenv").config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const fetch = require('node-fetch');
+const cors = require('cors');
+require('dotenv').config();
+const path = require('path');
 
 const app = express();
+const PORT = 3000;
+
 app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const MODEL_ID = "gemini-2.5-pro";
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:streamGenerateContent?key=${GEMINI_API_KEY}`;
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, '../frontend')));
 
-app.post("/generate", async (req, res) => {
+// Route to handle generation
+app.post('/generate', async (req, res) => {
   const { company, role, experience } = req.body;
 
-  if (!company || !role || !experience) {
-    return res.status(400).json({ error: "Missing required fields" });
-  }
+  const prompt = `Generate interview experience of ${company} in systematic manner for ${role} and ${experience} year(s) of experience in plain text, no markdown or symbols`;
 
-  const prompt = `Generate interview experience with questions in each round of ${company} for ${role} role for someone with ${experience} experience. Limit to 400 words. Format output strictly as a valid JSON object with keys: Introduction, Overview and all round details, Round 1 Name and Questions, Round 2 Name and Questions, Round 3 Name and Questions, Round 4 Name and Questions if any, Result, Tips. Do not include markdown or explanation, only return JSON.`;
-
-  const payload = {
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
-    generationConfig: {
-      responseMimeType: "application/json",
-    },
+  const body = {
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: prompt }]
+      }
+    ]
   };
 
   try {
-    const response = await axios.post(API_URL, payload, {
-      headers: { "Content-Type": "application/json" },
-      responseType: "stream",
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     });
 
-    let fullData = "";
+    const json = await response.json();
+    console.log('✅ Gemini Response:', JSON.stringify(json, null, 2)); // Debug output
 
-    response.data.on("data", (chunk) => {
-      fullData += chunk.toString();
-    });
-
-    response.data.on("end", () => {
-      try {
-        const jsonStart = fullData.indexOf("{");
-        const jsonEnd = fullData.lastIndexOf("}");
-        const jsonText = fullData.slice(jsonStart, jsonEnd + 1);
-
-        const parsed = JSON.parse(jsonText);
-        res.json(parsed);
-      } catch (parseErr) {
-        console.error("Parse error:", parseErr.message);
-        res.status(500).json({ error: "Failed to parse AI response." });
-      }
-    });
+    const output = json.candidates?.[0]?.content?.parts?.[0]?.text || 'No content generated.';
+    res.json({ result: output });
   } catch (err) {
-    console.error("API error:", err.message);
-    res.status(500).json({ error: "Failed to call Gemini API." });
+    console.error('❌ Error:', err);
+    res.status(500).json({ result: 'Error generating experience. Please try again.' });
   }
 });
 
-app.listen(3000, () => {
-  console.log("✅ Server running on http://localhost:3000");
+app.listen(PORT, () => {
+  console.log(`✅ Server running at: http://localhost:${PORT}`);
 });

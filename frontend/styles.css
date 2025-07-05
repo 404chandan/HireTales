@@ -1,49 +1,79 @@
 body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
+  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+  font-family: 'Segoe UI', sans-serif;
+  color: #f1f1f1;
   margin: 0;
   padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  height: 100vh;
+  overflow-y: scroll;
 }
 
 .container {
-  max-width: 600px;
-  margin: 50px auto;
-  background: #fff;
+  margin-top: 50px;
+  width: 90%;
+  max-width: 700px;
+  background: #1c1c1c;
   padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 h1 {
   text-align: center;
+  color: #00ffff;
+  margin-bottom: 20px;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
 }
 
-input, button {
-  padding: 10px;
-  font-size: 1rem;
+input {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  background: #333;
+  color: white;
+}
+
+input:focus {
+  outline: 2px solid #00ffff;
 }
 
 button {
-  background-color: #4CAF50;
-  color: white;
+  padding: 12px;
+  font-size: 16px;
+  background: #00ffff;
+  color: black;
   border: none;
+  border-radius: 10px;
   cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 button:hover {
-  background-color: #45a049;
+  background: #00cccc;
 }
 
-pre {
+#output {
+  margin-top: 25px;
+  padding: 20px;
+  background: #111;
+  border-radius: 15px;
   white-space: pre-wrap;
-  background: #eee;
-  padding: 15px;
-  margin-top: 20px;
-  border-radius: 5px;
+  max-height: 600px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
 }

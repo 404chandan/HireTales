@@ -1,46 +1,38 @@
-const form = document.getElementById("experienceForm");
-const output = document.getElementById("output");
-
-form.addEventListener("submit", async (e) => {
+document.getElementById('experienceForm').addEventListener('submit', async function (e) {
   e.preventDefault();
 
-  const company = document.getElementById("company").value.trim();
-  const role = document.getElementById("role").value.trim();
-  const experience = document.getElementById("experience").value.trim();
+  const form = e.target;
+  const company = form.company.value.trim();
+  const role = form.role.value.trim();
+  const experience = form.experience.value.trim();
+  const outputDiv = document.getElementById('output');
+  const submitButton = form.querySelector('button');
 
-  output.innerHTML = "<p>Generating interview experience...</p>";
+  if (!company || !role || !experience) {
+    outputDiv.textContent = 'Please fill in all fields.';
+    return;
+  }
+
+  outputDiv.innerHTML = '<em>Generating interview experience...</em>';
+  submitButton.disabled = true;
 
   try {
-    const res = await fetch("http://localhost:3000/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ company, role, experience }),
+    const res = await fetch('http://localhost:3000/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ company, role, experience })
     });
 
-    const data = await res.json();
-    const structured = data.text;
-
-    if (!structured || typeof structured !== "object") {
-      output.innerHTML = "<p class='error'>Invalid response format.</p>";
-      return;
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
     }
 
-    output.innerHTML = renderStructuredOutput(structured);
+    const data = await res.json();
+    outputDiv.textContent = data.result || 'No output received.';
   } catch (err) {
-    output.innerHTML = "<p class='error'>Error: Could not fetch interview experience.</p>";
-    console.error(err);
+    console.error('Fetch error:', err);
+    outputDiv.textContent = 'Something went wrong. Please try again later.';
+  } finally {
+    submitButton.disabled = false;
   }
 });
-
-function renderStructuredOutput(obj) {
-  return `
-    <h2>Introduction</h2><p>${obj["Introduction"]}</p>
-    <h2>Overview</h2><p>${obj["Overview and all round details"]}</p>
-    <h2>Round 1</h2><p>${obj["Round 1 Name and Questions"]}</p>
-    <h2>Round 2</h2><p>${obj["Round 2 Name and Questions"]}</p>
-    <h2>Round 3</h2><p>${obj["Round 3 Name and Questions"]}</p>
-    <h2>Round 4</h2><p>${obj["Round 4 Name and Questions if any"]}</p>
-    <h2>Result</h2><p>${obj["Result"]}</p>
-    <h2>Tips</h2><p>${obj["Tips"]}</p>
-  `;
-}

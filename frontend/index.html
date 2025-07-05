@@ -1,25 +1,21 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Interview Generator</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <title>AI Interview Experience Generator</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>AI Interview Experience Generator</h1>
-
-  <form id="experienceForm">
-    <input type="text" id="company" placeholder="Company" required />
-    <input type="text" id="role" placeholder="Role" required />
-    <input type="text" id="experience" placeholder="Experience (e.g., 1 year)" required />
-    <button type="submit">Generate</button>
-  </form>
-
-  <div id="output"></div>
-
-  <!-- ✅ Include script at the end -->
+  <div class="container">
+    <h1>AI-Powered Interview Experience Generator</h1>
+    <form id="experienceForm">
+      <input type="text" name="company" placeholder="Company Name" required>
+      <input type="text" name="role" placeholder="Role (e.g. Software Engineer)" required>
+      <input type="number" name="experience" placeholder="Years of Experience" min="0" required>
+      <button type="submit">Generate</button>
+    </form>
+    <div id="output"></div>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
